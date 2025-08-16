@@ -1,4 +1,4 @@
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, login
 from django.shortcuts import render, redirect
 from pyexpat.errors import messages
 
@@ -14,7 +14,8 @@ def admin_login_post(request):
     password = request.POST['password']
     ll=authenticate(username=username,password=password)
     if ll is not None:
-        if ll.group.filter(name='admin'):
+        login(request, ll)
+        if ll.groups.filter(name='admin'):
             return redirect('/myapp/admin_home/')
         else:
             messages.error(request,'Invalid user')
