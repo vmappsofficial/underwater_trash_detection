@@ -14,7 +14,14 @@ urlpatterns = [
     path('Password_change/',views.password_page),
     path('Forgot_password/',views.forgot_password),
     path('notifications/',views.notifications),
+    path('notification_post/',views.notification_post),
     path('admin_login_post/',views.admin_login_post),
     path('change_password_post/',views.change_password_post),
     path('forgot_password_post/',views.forgot_password_post),
+    path('user_login_post/',views.user_login_post),
+    path('user_register_post/',views.user_signup_post),
+    path('view_profile/',views.view_profile),
+
+
+
 ]

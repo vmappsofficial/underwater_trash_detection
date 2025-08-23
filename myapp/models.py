@@ -4,6 +4,7 @@ from django.db import models
 # Create your models here.
 class Registration(models.Model):
     name = models.CharField(max_length=100)
+
     gender = models.CharField(max_length=20)
     dob = models.DateField()
     email = models.CharField(max_length=100)
@@ -34,6 +35,7 @@ class Review(models.Model):
 class Notification(models.Model):
     date = models.DateField()
     notification = models.CharField(max_length=100)
+
 
 
 
