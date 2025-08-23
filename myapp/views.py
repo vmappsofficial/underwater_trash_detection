@@ -1,13 +1,14 @@
+import datetime
 from urllib import request
 
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
-from django.contrib.auth.hashers import check_password
+from django.contrib.auth.hashers import check_password, make_password
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 
-from myapp.models import Notification, Registration
+from myapp.models import Notification, Registration, Review, Issue_report
 
 
 # Create your views here.
@@ -152,3 +153,113 @@ def view_profile(request):
             'pincode': d.pincode,
         }
     )
+
+
+def edit_profile_post(request):
+    name1 = request.POST['name1']
+    email1 = request.POST['email1']
+    phone_number1 = request.POST['phone_number1']
+    dob1 = request.POST['dob1']
+    place1 = request.POST['place1']
+    gender1 = request.POST['gender1']
+    city1 = request.POST['city1']
+    state1 = request.POST['state1']
+    pincode1 = request.POST['pincode1']
+    lid = request.POST['lid']
+
+    d = Registration.objects.get(USER_id=lid)
+    d.name=name1
+    d.phone=phone_number1
+    d.dob=dob1
+    d.email=email1
+    d.gender=gender1
+    d.city=city1
+    d.state=state1
+    d.pincode=pincode1
+    d.save()
+    return JsonResponse(
+        {
+            'status': 'ok',
+
+
+        }
+    )
+
+def user_change_password(request):
+    password1 = request.POST['password1']
+    password2 = request.POST['password2']
+    lid = request.POST['lid']
+    d = User.objects.get(id=lid)
+    d.password=make_password(password2)
+    d.save()
+    return JsonResponse(
+        {
+          'status': 'ok',
+        }
+    )
+
+def review_post(request):
+    review_content =request.POST['review']
+    lid=request.POST['lid']
+    rating=request.POST['rating']
+
+
+    R=Review()
+    R.rating=rating
+    R.content=review_content
+    R.date=  datetime.datetime.now()
+    R.Registration= Registration.objects.get(USER_id=lid)
+    R.save()
+
+    return JsonResponse({
+        'status': 'ok',
+
+    })
+
+def view_notification(request):
+    d=Notification.objects.all()
+
+    return JsonResponse(
+        {
+            'status': 'ok',
+        }
+    )
+
+def view_review(request):
+    d=Review.objects.all()
+    return JsonResponse(
+        {
+            'status': 'ok',
+        }
+    )
+def report_issue(request):
+    latitude = request.POST['latitude']
+    longitude = request.POST['longitude']
+    lid=request.POST['lid']
+    description=request.POST['description']
+    action=request.POST['action']
+    R = Issue_report()
+    R.latitude=latitude
+    R.longitude=longitude
+    R.description=description
+    R.date=datetime.datetime.now()
+    R.Registration= Registration.objects.get(USER_id=lid)
+    R.action=action
+    R.save()
+    return JsonResponse(
+        {
+            'status': 'ok',
+        }
+    )
+def view_issue(request):
+    lid= request.POST['lid']
+    d = Issue_report.objects.filter(USER_id=lid)
+    return JsonResponse(
+        {
+            'status': 'ok',
+        }
+    )
+
+
+
+

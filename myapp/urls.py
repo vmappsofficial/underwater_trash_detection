@@ -21,6 +21,7 @@ urlpatterns = [
     path('user_login_post/',views.user_login_post),
     path('user_register_post/',views.user_signup_post),
     path('view_profile/',views.view_profile),
+    path('edit_profile/',views.edit_profile_post)
 
 
 
