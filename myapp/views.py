@@ -4,11 +4,12 @@ from urllib import request
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.hashers import check_password, make_password
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
+from django.core.files.storage import FileSystemStorage
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 
-from myapp.models import Notification, Registration, Review, Issue_report
+from myapp.models import Notification, Registration, Review, Issue_report, Upload
 
 
 # Create your views here.
@@ -84,12 +85,12 @@ def notifications(request):
     return render(request,'notification_page.html')
 
 def user_login_post(request):
-    username = request.POST['email1']
-    password = request.POST['password1']
+    username = request.POST['Username']
+    password = request.POST['Password']
     user=authenticate(request,username=username,password=password)
     if user is not None:
         login(request, user)
-        if user.groups.filter(name='user').exists():
+        if user.groups.filter(name='users').exists():
             return  JsonResponse(
                 {
                     'status': 'ok',
@@ -108,6 +109,7 @@ def user_login_post(request):
 
 def user_signup_post(request):
     name1 = request.POST['name1']
+    print(name1,"------------------------")
     email1 = request.POST['email1']
     phone_number1 = request.POST['phone_number1']
     dob1 = request.POST['dob1']
@@ -116,15 +118,35 @@ def user_signup_post(request):
     city1 = request.POST['city1']
     state1 = request.POST['state1']
     pincode1 = request.POST['pincode1']
-    password1 = request.POST['password1']
-    au=User.objects.create_user(username=email1,password=password1)
+    password = request.POST['password1']
+    photo = request.FILES['photo']
+    confirm_password = request.POST['_confirmPassword']
+
+    if password!=confirm_password:
+        return JsonResponse(
+            {
+                'status': 'error',
+            }
+        )
+
+    fs = FileSystemStorage()
+    date = datetime.datetime.now().strftime('%d%M%Y-%H%M%S')+'.jpg'
+    fs.save(date,photo)
+    path = fs.path(date)
+
+    au=User.objects.create_user(username=email1,password=password)
+    au_grp = Group.objects.get(name='users')
+    au.groups.add(au_grp)
+    au_grp.save()
+
     r=Registration()
     r.name=name1
-    r.photo=""
+    r.photo=path
     r.phone = phone_number1
     r.dob = dob1
     r.email = email1
     r.gender = gender1
+    r.place = place1
     r.city = city1
     r.state = state1
     r.pincode = pincode1
@@ -186,8 +208,8 @@ def edit_profile_post(request):
     )
 
 def user_change_password(request):
-    password1 = request.POST['password1']
-    password2 = request.POST['password2']
+    password1 = request.POST['current_password']
+    password2 = request.POST['new_password']
     lid = request.POST['lid']
     d = User.objects.get(id=lid)
     d.password=make_password(password2)
@@ -259,6 +281,18 @@ def view_issue(request):
             'status': 'ok',
         }
     )
+def upload_image(request):
+    id=request.POST['id']
+    photo = request.FILES['photo']
+    fs = FileSystemStorage()
+    date = datetime.datetime.now().strftime('%d%M%Y-%H%M%S') + '.jpg'
+    fs.save(date, photo)
+    path = fs.path(date)
+    data = Upload()
+    data.photo=path
+    data.date=datetime.datetime.now().today()
+    data.REGISTRATION = Registration.objects.get(USER_id=id)
+    data.save()
 
 
 

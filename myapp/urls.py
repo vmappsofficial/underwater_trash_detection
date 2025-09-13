@@ -19,9 +19,10 @@ urlpatterns = [
     path('change_password_post/',views.change_password_post),
     path('forgot_password_post/',views.forgot_password_post),
     path('user_login_post/',views.user_login_post),
-    path('user_register_post/',views.user_signup_post),
+    path('user_signup_post/',views.user_signup_post),
     path('view_profile/',views.view_profile),
-    path('edit_profile/',views.edit_profile_post)
+    path('edit_profile/',views.edit_profile_post),
+    path('upload_image/',views.upload_image),
 
 
 

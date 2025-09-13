@@ -36,6 +36,10 @@ class Notification(models.Model):
     date = models.DateField()
     notification = models.CharField(max_length=100)
 
+class Upload(models.Model):
+    uploaded_file = models.CharField(max_length=400)
+    date = models.DateField()
+    REGISTRATION = models.ForeignKey(Registration, on_delete=models.CASCADE)
 
 
 
