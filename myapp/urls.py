@@ -25,6 +25,7 @@ urlpatterns = [
     path('upload_image/',views.upload_image),
     path('user_change_password/',views.user_change_password),
     path('view_upload_file/',views.view_upload),
+    path('view_detections/',views.view_detection)
 
 
 

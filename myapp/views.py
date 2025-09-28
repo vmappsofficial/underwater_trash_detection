@@ -11,7 +11,7 @@ from django.core.files.storage import FileSystemStorage
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 
-from myapp.models import Notification, Registration, Review, Issue_report, Upload
+from myapp.models import Notification, Registration, Review, Issue_report, Upload, Detection
 
 
 # Create your views here.
@@ -450,6 +450,34 @@ def view_issue(request):
             'status': 'ok',
         }
     )
+
+
+def view_detection(request):
+    id= request.POST['id']
+    print(id,"===========================")
+    d = Detection.objects.filter(d_id=id)
+
+    li=[]
+
+    for item in d:
+        li.append(
+            {
+                'id':item.id,
+                'trash':item.trash,
+
+            }
+        )
+    return JsonResponse(
+        {
+            'status': 'ok',
+            'data':li
+        }
+    )
+
+
+
+
+
 def view_upload(request):
     lid= request.POST['lid']
     d = Upload.objects.filter(REGISTRATION__USER_id=lid)
@@ -464,6 +492,8 @@ def view_upload(request):
                 'date':item.date,
             }
         )
+
+    print(li)
     return JsonResponse(
         {
             'status': 'ok',

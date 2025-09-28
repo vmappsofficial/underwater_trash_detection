@@ -41,6 +41,9 @@ class Upload(models.Model):
     date = models.DateField()
     REGISTRATION = models.ForeignKey(Registration, on_delete=models.CASCADE)
 
+class Detection(models.Model):
+    trash= models.CharField(max_length=400)
+    d = models.ForeignKey(Upload, on_delete=models.CASCADE)
 
 
 
