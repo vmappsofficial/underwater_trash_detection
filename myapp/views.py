@@ -520,5 +520,20 @@ def upload_image(request):
     return JsonResponse({
         'status': 'ok',
     })
+from django.core.mail import send_mail
+from django.conf import settings
+def user_forgot_password(request):
+    email = request.POST['email']
+
+    user = User.objects.get(username=email)
+
+    import random
+    psw = random.randint(1000, 9999)
+    send_mail("Temporary Password", str(psw), settings.EMAIL_HOST_USER, [email])
+    user.set_password(str(psw))
+    user.save()
+    return JsonResponse({
+        'status': 'ok',
+    })
 
 
