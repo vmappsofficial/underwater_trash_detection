@@ -76,7 +76,8 @@ def review(request):
 def trash_detection_page(request):
     return render(request,'trash_detection.html')
 def user_details(request):
-    return render(request,'User_details.html')
+    data = Registration.objects.all()
+    return render(request,'User_details.html',{'data':data})
 def review_page(request):
     return render(request,'Review_page.html')
 def password_page(request):
