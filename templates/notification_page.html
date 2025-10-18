@@ -1,75 +1,198 @@
-<html>
-  <head>
-    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="" />
-    <link
-      rel="stylesheet"
-      as="style"
-      onload="this.rel='stylesheet'"
-      href="https://fonts.googleapis.com/css2?display=swap&amp;family=Inter%3Awght%40400%3B500%3B700%3B900&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900"
-    />
-
-    <title>Notification</title>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AquaClean AI - Notification</title>
     <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64," />
-
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?display=swap&family=Inter:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700;900" />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-  </head>
-  <body>
-  <form action="/myapp/notification_post/" method="post">
-    {%csrf_token%}
-    <div
-      class="relative flex size-full min-h-screen flex-col bg-[#102323] dark group/design-root overflow-x-hidden"
-      style="--checkbox-tick-svg: url('data:image/svg+xml,%3csvg viewBox=%270 0 16 16%27 fill=%27rgb(16,35,35)%27 xmlns=%27http://www.w3.org/2000/svg%27%3e%3cpath d=%27M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z%27/%3e%3c/svg%3e'); font-family: Inter, &quot;Noto Sans&quot;, sans-serif;"
-    >
-      <div class="layout-container flex h-full grow flex-col">
-        <div class="px-40 flex flex-1 justify-center py-5">
-          <div class="layout-content-container flex flex-col w-[512px] max-w-[512px] py-5 max-w-[960px] flex-1">
-            <h2 class="text-white tracking-light text-[28px] font-bold leading-tight px-4 text-center pb-3 pt-5">Notification</h2>
+    <style>
+        :root {
+            --primary-blue: #003366; /* Deep ocean blue */
+            --secondary-blue: #0077b3; /* Brighter blue for accents */
+            --eco-green: #009933; /* Green for environmental theme */
+            --trash-red: #cc0000; /* Red for trash alerts */
+            --bg-gradient: linear-gradient(to bottom, #003366, #00b3e6); /* Underwater gradient */
+            --text-color: #ffffff; /* White text for contrast */
+            --secondary-text: #e6f2ff; /* Light blue text */
+        }
+
+        body {
+            background: var(--bg-gradient);
+            font-family: 'Inter', 'Noto Sans', sans-serif;
+            overflow-x: hidden;
+        }
+
+        nav {
+            background-color: var(--primary-blue);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        nav ul {
+            display: flex;
+            justify-content: center;
+            list-style: none;
+            margin: 0;
+            padding: 1rem;
+        }
+
+        nav ul li {
+            margin: 0 1.5rem;
+        }
+
+        nav ul li a {
+            color: var(--text-color);
+            font-weight: 700;
+            font-size: 1rem;
+            text-decoration: none;
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+
+        nav ul li a:hover {
+            color: var(--eco-green);
+            transform: scale(1.1);
+        }
+
+        .bubble {
+            position: absolute;
+            bottom: -50px;
+            width: 20px;
+            height: 20px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            animation: rise 10s infinite ease-in-out;
+            z-index: -1;
+        }
+
+        .bubble:nth-child(2) { left: 20%; width: 30px; height: 30px; animation-duration: 15s; animation-delay: 2s; }
+        .bubble:nth-child(3) { left: 40%; width: 15px; height: 15px; animation-duration: 12s; animation-delay: 4s; }
+        .bubble:nth-child(4) { left: 60%; width: 25px; height: 25px; animation-duration: 18s; animation-delay: 6s; }
+        .bubble:nth-child(5) { left: 80%; width: 18px; height: 18px; animation-duration: 14s; animation-delay: 8s; }
+
+        @keyframes rise {
+            0% { transform: translateY(0) translateX(0); opacity: 0.8; }
+            50% { transform: translateY(-100vh) translateX(10px); opacity: 0.5; }
+            100% { transform: translateY(-200vh) translateX(-10px); opacity: 0; }
+        }
+
+        .wave {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23003366" fill-opacity="1" d="M0,288L48,272C96,256,192,224,288,197.3C384,171,480,149,576,165.3C672,181,768,235,864,245.3C960,256,1056,224,1152,197.3C1248,171,1344,149,1392,138.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') repeat-x;
+            animation: wave 20s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes wave {
+            0% { background-position: 0 0; }
+            100% { background-position: 1440px 0; }
+        }
+
+        .card {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--secondary-blue);
+            border-radius: 12px;
+            transition: transform 0.3s ease;
+            padding: 1.5rem;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .form-input, .form-textarea {
+            background-color: #253b46;
+            border: 1px solid var(--secondary-blue);
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus, .form-textarea:focus {
+            border-color: var(--eco-green);
+        }
+
+        .btn-primary {
+            background-color: var(--eco-green);
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #00cc44;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <!-- Unified Navigation Bar -->
+    <nav>
+        <ul>
+            <li><a href="/myapp/admin_home">Dashboard</a></li>
+            <li><a href="/myapp/trash_detection">Trash Detection Result</a></li>
+            <li><a href="/myapp/Review_page">Review</a></li>
+            <li><a href="/myapp/user_details">User Management</a></li>
+            <li><a href="/myapp/notifications">Notification</a></li>
+            <li><a href="/myapp/Password_change">Settings</a></li>
+            <li><a href="/myapp/admin_login">Logout</a></li>
+        </ul>
+    </nav>
+
+    <!-- Underwater Animations -->
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="wave"></div>
+
+    <div class="relative flex size-full min-h-screen flex-col">
+        <div class="layout-container flex h-full grow flex-col pt-20">
+            <div class="px-10 flex flex-1 justify-center py-5">
+                <div class="layout-content-container flex flex-col max-w-[960px] flex-1">
+                    <h2 class="text-white tracking-tight text-[28px] font-bold leading-tight px-4 text-center pb-3 pt-5">Send Notification</h2>
+                    <form action="/myapp/notification_post/" method="post" class="card">
+                        {% csrf_token %}
+                        <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3" >
+                            <label class="flex flex-col min-w-40 flex-1">
+                                <span class="text-white text-sm font-medium leading-normal mb-2" >Date</span>
+                                <input style="color:black;"
+                                    type="date"
+                                    name="date"
+                                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-white focus:outline-0 focus:ring-0 border-none h-14 placeholder:text-[#90b3cb] p-4 text-base font-normal leading-normal"
+                                    value=""
+                                />
+                            </label>
+                        </div>
                         <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
-              <label class="flex flex-col min-w-40 flex-1">
-
-                <input
-                 type="date"
-                 name="date"
-                  class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-white focus:outline-0 focus:ring-0 border-none bg-[#224949] focus:border-none h-14 placeholder:text-[#90cbcb] p-4 text-base font-normal leading-normal"
-                  value=""
-                />
-              </label>
-            </div>
-            <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
-              <label class="flex flex-col min-w-40 flex-1">
-                <div class="flex w-full flex-1 items-stretch rounded-xl">
-
-                    <textarea style="height:150px;"
-                              name="notification"
-                        placeholder="Enter messeage" class="form-input flex w-full min-w-0  overflow-hidden rounded-xl text-white focus:outline-0 focus:ring-0 border-none bg-[#224949] focus:border-none h-14 placeholder:text-[#90cbcb] p-4 rounded-r-none border-r-0 pr-2 text-base font-normal leading-normal"></textarea>
-
-
+                            <label class="flex flex-col min-w-40 flex-1">
+                                <span class="text-white text-sm font-medium leading-normal mb-2">Message</span>
+                                <textarea
+                                        style="color:black;"
+                                    name="notification"
+                                    placeholder="Enter message"
+                                    class="form-textarea flex w-full min-w-0 resize-none overflow-hidden rounded-xl text-white focus:outline-0 focus:ring-0 border-none h-32 placeholder:text-[#90b3cb] p-4 text-base font-normal leading-normal"
+                                ></textarea>
+                            </label>
+                        </div>
+                        <div class="flex px-4 py-3">
+                            <button
+                                type="submit"
+                                class="btn-primary flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-12 px-5 flex-1 text-white text-base font-bold leading-normal tracking-[0.015em]"
+                            >
+                                <span class="truncate">Send Notification</span>
+                            </button>
+                        </div>
+                    </form>
                 </div>
-              </label>
             </div>
-            <div class="flex items-center gap-4 bg-[#102323] px-4 min-h-14 justify-between">
-             
-              <div class="shrink-0">
-                <div class="flex size-7 items-center justify-center">
-                
-                </div>
-              </div>
-            </div>
-            
-            <div class="flex px-4 py-3">
-              <button
-                class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-12 px-5 flex-1 bg-[#0cf2f2] text-[#102323] text-base font-bold leading-normal tracking-[0.015em]"
-              >
-                <span class="truncate">Send</span>
-              </button>
-            </div>
-            <div class="flex px-4 py-3 justify-center">
-            
-            </div>
-          </div>
         </div>
-      </div>
     </div>
-    </form>
-  </body>
+</body>
 </html>
