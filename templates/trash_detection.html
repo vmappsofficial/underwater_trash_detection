@@ -111,6 +111,32 @@
             color: var(--trash-red);
             font-weight: bold;
         }
+
+        .form-input {
+            background-color: #253b46;
+            border: 1px solid var(--secondary-blue);
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus {
+            border-color: var(--eco-green);
+        }
+
+        .view-link {
+            color: var(--secondary-text);
+            transition: color 0.3s ease;
+        }
+
+        .view-link:hover {
+            color: var(--eco-green);
+        }
+
+        .no-results {
+            color: var(--secondary-text);
+            text-align: center;
+            padding: 1rem;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -141,9 +167,6 @@
                 <div class="layout-content-container flex flex-col max-w-[960px] flex-1">
                     <div class="flex flex-wrap justify-between gap-3 p-4">
                         <p class="text-white tracking-tight text-[32px] font-bold leading-tight min-w-72">Trash Detection Results</p>
-                        <button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-8 px-4 bg-[#253b46] text-white text-sm font-medium leading-normal">
-                            <span class="truncate">Export</span>
-                        </button>
                     </div>
                     <div class="px-4 py-3">
                         <label class="flex flex-col min-w-40 h-12 w-full">
@@ -153,44 +176,13 @@
                                         <path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"></path>
                                     </svg>
                                 </div>
-                                <input placeholder="Search" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border-none bg-[#253b46] focus:border-none h-full placeholder:text-[#95b6c6] px-4 rounded-l-none border-l-0 pl-2 text-base font-normal leading-normal" value="" />
+                                <input id="searchInput" placeholder="Search results..." class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border-none bg-[#253b46] focus:border-none h-full placeholder:text-[#95b6c6] px-4 rounded-l-none border-l-0 pl-2 text-base font-normal leading-normal" value="" />
                             </div>
                         </label>
                     </div>
-                    <div class="flex gap-3 p-3 flex-wrap pr-4">
-                        <button class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-[#253b46] pl-4 pr-2">
-                            <p class="text-white text-sm font-medium leading-normal">Date</p>
-                            <div class="text-white" data-icon="CaretDown" data-size="20px" data-weight="regular">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256">
-                                    <path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"></path>
-                                </svg>
-                            </div>
-                        </button>
-                        <button class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-[#253b46] pl-4 pr-2">
-                            <p class="text-white text-sm font-medium leading-normal">Location</p>
-                            <div class="text-white" data-icon="CaretDown" data-size="20px" data-weight="regular">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256">
-                                    <path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"></path>
-                                </svg>
-                            </div>
-                        </button>
-                    </div>
-                    <div class="flex flex-wrap gap-4 p-4">
-                        <div class="card flex min-w-[158px] flex-1 flex-col gap-2 rounded-lg p-6 border border-[#0077b3]">
-                            <p class="text-white text-base font-medium leading-normal">Total Detections Today</p>
-                            <p class="text-white tracking-tight text-2xl font-bold leading-tight">125</p>
-                        </div>
-                        <div class="card flex min-w-[158px] flex-1 flex-col gap-2 rounded-lg p-6 border border-[#0077b3]">
-                            <p class="text-white text-base font-medium leading-normal">Detection Accuracy</p>
-                            <p class="text-white tracking-tight text-2xl font-bold leading-tight">98%</p>
-                        </div>
-                        <div class="card flex min-w-[158px] flex-1 flex-col gap-2 rounded-lg p-6 border border-[#0077b3]">
-                            <p class="text-white text-base font-medium leading-normal">Most Detected Trash Type</p>
-                            <p class="text-white tracking-tight text-2xl font-bold leading-tight alert">Plastic</p>
-                        </div>
-                    </div>
+
                     <div class="px-4 py-3 @container">
-                        <div class="flex overflow-hidden rounded-lg border border-[#0077b3] bg-[#121c21]">
+                        <div class="flex overflow-hidden rounded-lg border border-[#0077b3] bg-[#121c21] card">
                             <table class="flex-1">
                                 <thead>
                                     <tr class="bg-[#1b2a32]">
@@ -199,44 +191,80 @@
                                         <th class="table-5bf66a9b-3172-4cba-8352-5b4caaf97ecb-column-176 px-4 py-3 text-left text-white w-[400px] text-sm font-medium leading-normal">Detection Date</th>
                                         <th class="table-5bf66a9b-3172-4cba-8352-5b4caaf97ecb-column-416 px-4 py-3 text-left text-white w-60 text-sm font-medium leading-normal">User</th>
                                         <th class="table-5bf66a9b-3172-4cba-8352-5b4caaf97ecb-column-296 px-4 py-3 text-left text-white w-[400px] text-sm font-medium leading-normal">Location</th>
-                                        <th class="table-5bf66a9b-3172-4cba-8352-5b4caaf97ecb-column-656 px-4 py-3 text-left text-white w-60 text-sm font-medium leading-normal">Review Status</th>
-                                        <th class="table-5bf66a9b-3172-4cba-8352-5b4caaf97ecb-column-776 px-4 py-3 text-left text-white w-60 text-[#95b6c6] text-sm font-medium leading-normal">Actions</th>
+                                        <th class="table-5bf66a9b-3172-4cba-8352-5b4caaf97ecb-column-776 px-4 py-3 text-left text-white w-60 text-sm font-medium leading-normal">Action</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody id="resultsTableBody">
+                                    {% for i in data %}
                                     <tr class="border-t border-t-[#0077b3]">
-                                        <td class="table-5bf66a9b-3172-4cba-8352-5b4caaf97ecb-column-536 h-[72px] px-4 py-2 w-[400px] text-[#95b6c6] text-sm font-normal leading-normal">1</td>
+                                        <td class="table-5bf66a9b-3172-4cba-8352-5b4caaf97ecb-column-536 h-[72px] px-4 py-2 w-[400px] text-[#95b6c6] text-sm font-normal leading-normal">{{ forloop.counter }}</td>
                                         <td class="table-5bf66a9b-3172-4cba-8352-5b4caaf97ecb-column-56 h-[72px] px-4 py-2 w-14 text-sm font-normal leading-normal">
-                                            <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full w-10" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuARJfuvQAWD57eIKI8UGxlfZbt3-31Vk0hQR4ju3qVijCLayKHffPSzpq9VUA4TIOnUDFoCZ_8kxCk2Hzzs-DapJ-q0NBFD2g0nwv371dTZ_Wl8LUXf-zVB4hbFmiUyI0tEXo8BCJYmWk5Xwobg8tFPK0BasBeCc-wa3l4XeEK-3qDmDA6xbdqFgFufH_pwOi_jiKaRmUZ-RylroCr2-cIpf46ajlhtuesUCVF0twRwdi-A66EQM_9fPQyvvlPv6mKTXBNlt4kBixY");'></div>
+                                            <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full w-10" style='background-image: url("{{ i.d.uploaded_file }}");'></div>
                                         </td>
-                                        <td class="table-5bf66a9b-3172-4cba-8352-5b4caaf97ecb-column-176 h-[72px] px-4 py-2 w-[400px] text-[#95b6c6] text-sm font-normal leading-normal">2024-01-13</td>
-                                        <td class="table-5bf66a9b-3172-4cba-8352-5b4caaf97ecb-column-416 h-[72px] px-4 py-2 w-60 text-[#95b6c6] text-sm font-normal leading-normal">Arjun</td>
-                                        <td class="table-5bf66a9b-3172-4cba-8352-5b4caaf97ecb-column-296 h-[72px] px-4 py-2 w-[400px] text-[#95b6c6] text-sm font-normal leading-normal">Perinthalmanna</td>
-                                        <td class="table-5bf66a9b-3172-4cba-8352-5b4caaf97ecb-column-656 h-[72px] px-4 py-2 w-60 text-sm font-normal leading-normal">
-                                            <button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-8 px-4 bg-[#253b46] text-white text-sm font-medium leading-normal w-full">
-                                                <span class="truncate">Pending</span>
-                                            </button>
-                                        </td>
+                                        <td class="table-5bf66a9b-3172-4cba-8352-5b4caaf97ecb-column-176 h-[72px] px-4 py-2 w-[400px] text-[#95b6c6] text-sm font-normal leading-normal">{{ i.d.date }}</td>
+                                        <td class="table-5bf66a9b-3172-4cba-8352-5b4caaf97ecb-column-416 h-[72px] px-4 py-2 w-60 text-[#95b6c6] text-sm font-normal leading-normal">{{ i.d.REGISTRATION.name }}</td>
+                                        <td class="table-5bf66a9b-3172-4cba-8352-5b4caaf97ecb-column-296 h-[72px] px-4 py-2 w-[400px] text-[#95b6c6] text-sm font-normal leading-normal">{{ i.d.REGISTRATION.place }}</td>
                                         <td class="table-5bf66a9b-3172-4cba-8352-5b4caaf97ecb-column-776 h-[72px] px-4 py-2 w-60 text-[#95b6c6] text-sm font-bold leading-normal tracking-[0.015em]">
-                                            <a href="/myapp/view_more" class="text-[#95b6c6] text-sm font-normal leading-normal">View</a>
+                                            <a href="/myapp/view_more" class="view-link text-[#95b6c6] text-sm font-normal leading-normal">View</a>
                                         </td>
                                     </tr>
+                                    {% endfor %}
                                 </tbody>
                             </table>
                         </div>
+                        <div id="noResultsMessage" class="no-results">No results found.</div>
                         <style>
-                            @container(max-width:56px){.table-5bf66a9b-3172-4cba-8352-5b4caaf97ecb-column-56{display: none;}}
-                            @container(max-width:176px){.table-5bf66a9b-3172-4cba-8352-5b4caaf97ecb-column-176{display: none;}}
-                            @container(max-width:296px){.table-5bf66a9b-3172-4cba-8352-5b4caaf97ecb-column-296{display: none;}}
-                            @container(max-width:416px){.table-5bf66a9b-3172-4cba-8352-5b4caaf97ecb-column-416{display: none;}}
-                            @container(max-width:536px){.table-5bf66a9b-3172-4cba-8352-5b4caaf97ecb-column-536{display: none;}}
-                            @container(max-width:656px){.table-5bf66a9b-3172-4cba-8352-5b4caaf97ecb-column-656{display: none;}}
-                            @container(max-width:776px){.table-5bf66a9b-3172-4cba-8352-5b4caaf97ecb-column-776{display: none;}}
+                            @container (max-width: 56px) { .table-5bf66a9b-3172-4cba-8352-5b4caaf97ecb-column-56 { display: none; } }
+                            @container (max-width: 176px) { .table-5bf66a9b-3172-4cba-8352-5b4caaf97ecb-column-176 { display: none; } }
+                            @container (max-width: 296px) { .table-5bf66a9b-3172-4cba-8352-5b4caaf97ecb-column-296 { display: none; } }
+                            @container (max-width: 416px) { .table-5bf66a9b-3172-4cba-8352-5b4caaf97ecb-column-416 { display: none; } }
+                            @container (max-width: 536px) { .table-5bf66a9b-3172-4cba-8352-5b4caaf97ecb-column-536 { display: none; } }
+                            @container (max-width: 776px) { .table-5bf66a9b-3172-4cba-8352-5b4caaf97ecb-column-776 { display: none; } }
                         </style>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        // Debounce function to limit the rate of search execution
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        const noResultsMessage = document.getElementById('noResultsMessage');
+
+        const performSearch = debounce(function() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const rows = document.querySelectorAll('#resultsTableBody tr');
+            let hasVisibleRows = false;
+
+            rows.forEach(row => {
+                const slNo = row.querySelector('.table-5bf66a9b-3172-4cba-8352-5b4caaf97ecb-column-536').textContent.toLowerCase();
+                const date = row.querySelector('.table-5bf66a9b-3172-4cba-8352-5b4caaf97ecb-column-176').textContent.toLowerCase();
+                const user = row.querySelector('.table-5bf66a9b-3172-4cba-8352-5b4caaf97ecb-column-416').textContent.toLowerCase();
+                const location = row.querySelector('.table-5bf66a9b-3172-4cba-8352-5b4caaf97ecb-column-296').textContent.toLowerCase();
+
+                const matchesSearch = slNo.includes(searchTerm) || date.includes(searchTerm) || user.includes(searchTerm) || location.includes(searchTerm);
+                row.style.display = matchesSearch ? '' : 'none';
+                if (matchesSearch) hasVisibleRows = true;
+            });
+
+            noResultsMessage.style.display = hasVisibleRows ? 'none' : 'block';
+        }, 300);
+
+        searchInput.addEventListener('input', performSearch);
+    </script>
 </body>
 </html>

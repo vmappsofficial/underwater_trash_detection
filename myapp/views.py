@@ -74,7 +74,8 @@ def forgot_password_post(request):
 def review(request):
     return render(request, 'View_more.html')
 def trash_detection_page(request):
-    return render(request,'trash_detection.html')
+    data = Detection.objects.all()
+    return render(request,'trash_detection.html',{'data':data},)
 def user_details(request):
     data = Registration.objects.all()
     return render(request,'User_details.html',{'data':data})
