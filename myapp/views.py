@@ -1,4 +1,5 @@
 import datetime
+import smtplib
 from urllib import request
 from django.views.decorators.csrf import csrf_exempt
 import traceback
@@ -10,6 +11,10 @@ from django.contrib.auth.models import User, Group
 from django.core.files.storage import FileSystemStorage
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.contrib.auth.models import User
+import smtplib
+import random
 
 from myapp.models import Notification, Registration, Review, Issue_report, Upload, Detection
 
@@ -614,3 +619,87 @@ def user_forgot_password(request):
     })
 
 
+def send_review(request):
+    id = request.POST['lid']
+    review = request.POST['review']
+    rating = request.POST['rating']
+    obj = Review()
+    obj.review=review
+    obj.rating=rating
+    obj.date= datetime.datetime.now().today()
+    obj.Registration = Registration.objects.get(USER_id=id)
+    obj.save()
+    return JsonResponse({
+        'status': 'ok',
+    })
+
+def admin_view_review(request):
+    a=Review.objects.all()
+    return render(request,'Review_page.html',{'data':a})
+def user_view_review(request):
+    id = request.POST['lid']
+    print(id,'knkn')
+    a=Review.objects.filter(Registration__USER_id=id)
+    l=[]
+    for i in a:
+        l.append({
+            'review':i.review,
+            'rating':i.rating,
+            'date':i.date,
+        })
+    return JsonResponse({
+        'status': 'ok',
+        'data':l,
+    })
+
+
+
+
+def forgot_password(request):
+    return render(request, 'password_page2.html')
+
+def forgot_password_post(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        print(f"Email received: {email}")  # Debug logging
+
+        if not email:
+            messages.error(request, 'Email is required')
+            return redirect('/myapp/forgot_password/')
+
+        if User.objects.filter(username=email).exists():
+            try:
+                # Generate random password
+                new_pass = random.randint(10000, 99999)
+                print(f"Generated password: {new_pass}")  # Debug logging
+
+                # Send email
+                server = smtplib.SMTP('smtp.gmail.com', 587)
+                server.starttls()
+                server.login("rahulrajvm7491@gmail.com", 'jhmfelpyefonxeiu')  # App Password
+                to = email
+                subject = "Password Reset"
+                body = f"Your new password is: {new_pass}\nPlease log in and change it immediately."
+                msg = f"Subject: {subject}\n\n{body}"
+                server.sendmail("rahulrajvm7491@gmail.com", to, msg)
+                server.quit()
+                print(f"Email sent to: {to}")  # Debug logging
+
+                # Update user password
+                user = User.objects.get(username=email)
+                user.set_password(str(new_pass))
+                user.save()
+                print(f"Password updated for user: {email}")  # Debug logging
+
+                messages.success(request, 'New password sent to your email')
+                return redirect('/myapp/admin_login/')
+            except Exception as e:
+                print(f"Error sending email: {e}")  # Debug logging
+                messages.error(request, f'Failed to send email: {str(e)}')
+                return redirect('/myapp/forgot_password/')
+        else:
+            messages.warning(request, 'Email does not exist')
+            return redirect('/myapp/forgot_password/')
+    else:
+        messages.error(request, 'Invalid request method')
+        return redirect('/myapp/forgot_password/')

@@ -18,6 +18,7 @@
             --bg-gradient: linear-gradient(to bottom, #003366, #00b3e6); /* Underwater gradient */
             --text-color: #ffffff; /* White text for contrast */
             --secondary-text: #e6f2ff; /* Light blue text */
+            --star-color: #f9d71c; /* Star color for ratings */
         }
 
         body {
@@ -102,12 +103,13 @@
             background-color: rgba(255, 255, 255, 0.1);
             border: 1px solid var(--secondary-blue);
             border-radius: 12px;
-            transition: transform 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
             padding: 1.5rem;
         }
 
         .card:hover {
             transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
         }
 
         .testimonial-heading {
@@ -172,7 +174,12 @@
         }
 
         .reviews {
-            color: #f9d71c;
+            color: var(--star-color);
+            font-size: 1rem;
+        }
+
+        .reviews i {
+            margin-right: 4px;
         }
 
         .box-top {
@@ -185,6 +192,13 @@
         .client-comment p {
             font-size: 0.9rem;
             color: var(--secondary-text);
+            line-height: 1.5;
+        }
+
+        .review-date {
+            font-size: 0.8rem;
+            color: var(--secondary-text);
+            margin-top: 0.5rem;
         }
 
         @media (max-width: 1060px) {
@@ -246,98 +260,44 @@
                             <h4>Client Feedback</h4>
                         </div>
                         <div class="testimonial-box-container">
+                            {% for i in data %}
                             <div class="testimonial-box card">
                                 <div class="box-top">
                                     <div class="profile">
                                         <div class="profile-img">
-                                            <img src="https://cdn3.iconfinder.com/data/icons/avatars-15/64/_Ninja-2-512.png" alt="Liam Mendes" />
+                                            <img src="{{ i.Registration.photo|default:'/static/images/default-user.png' }}" alt="{{ i.Registration.name|default:'Anonymous' }}" />
                                         </div>
                                         <div class="name-user">
-                                            <strong>Liam Mendes</strong>
-                                            <span>@liammendes</span>
+                                            <strong>{{ i.Registration.name|default:'Anonymous' }}</strong>
+                                            <span>{{ i.Registration.email|default:'No email provided' }}</span>
                                         </div>
                                     </div>
                                     <div class="reviews">
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="far fa-star"></i>
+                                        {% with rating=i.rating|add:"0" %}
+                                            {% if rating >= 1 %}<i class="fas fa-star"></i>{% else %}<i class="far fa-star"></i>{% endif %}
+                                            {% if rating >= 2 %}<i class="fas fa-star"></i>{% else %}<i class="far fa-star"></i>{% endif %}
+                                            {% if rating >= 3 %}<i class="fas fa-star"></i>{% else %}<i class="far fa-star"></i>{% endif %}
+                                            {% if rating >= 4 %}<i class="fas fa-star"></i>{% else %}<i class="far fa-star"></i>{% endif %}
+                                            {% if rating >= 5 %}<i class="fas fa-star"></i>{% else %}<i class="far fa-star"></i>{% endif %}
+                                        {% endwith %}
                                     </div>
                                 </div>
                                 <div class="client-comment">
-                                    <p>The AquaClean AI system is a game-changer for ocean conservation. Its accurate trash detection has streamlined our cleanup efforts significantly!</p>
+                                    <p>{{ i.review|default:'No review provided' }}</p>
+                                </div>
+                                <div class="review-date">
+                                    <span>{{ i.date|date:"F j, Y" }}</span>
+                                </div>
+                                <!-- Temporary debug output -->
+                                <div class="debug-rating" style="color: var(--secondary-text); font-size: 0.8rem;">
+                                    <span>Raw rating: {{ i.rating|default:'Not set' }}</span>
                                 </div>
                             </div>
-                            <div class="testimonial-box card">
-                                <div class="box-top">
-                                    <div class="profile">
-                                        <div class="profile-img">
-                                            <img src="https://cdn3.iconfinder.com/data/icons/avatars-15/64/_Ninja-2-512.png" alt="Noah Wood" />
-                                        </div>
-                                        <div class="name-user">
-                                            <strong>Noah Wood</strong>
-                                            <span>@noahwood</span>
-                                        </div>
-                                    </div>
-                                    <div class="reviews">
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                    </div>
-                                </div>
-                                <div class="client-comment">
-                                    <p>Absolutely impressed with the precision and user-friendly interface. AquaClean AI makes reviewing trash detection results a breeze!</p>
-                                </div>
+                            {% empty %}
+                            <div class="text-center text-white">
+                                <p>No reviews available.</p>
                             </div>
-                            <div class="testimonial-box card">
-                                <div class="box-top">
-                                    <div class="profile">
-                                        <div class="profile-img">
-                                            <img src="https://cdn3.iconfinder.com/data/icons/avatars-15/64/_Ninja-2-512.png" alt="Oliver Queen" />
-                                        </div>
-                                        <div class="name-user">
-                                            <strong>Oliver Queen</strong>
-                                            <span>@oliverqueen</span>
-                                        </div>
-                                    </div>
-                                    <div class="reviews">
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="far fa-star"></i>
-                                    </div>
-                                </div>
-                                <div class="client-comment">
-                                    <p>Great tool for environmental monitoring. The dashboard is intuitive, though I’d love to see more customization options in future updates.</p>
-                                </div>
-                            </div>
-                            <div class="testimonial-box card">
-                                <div class="box-top">
-                                    <div class="profile">
-                                        <div class="profile-img">
-                                            <img src="https://cdn3.iconfinder.com/data/icons/avatars-15/64/_Ninja-2-512.png" alt="Barry Allen" />
-                                        </div>
-                                        <div class="name-user">
-                                            <strong>Barry Allen</strong>
-                                            <span>@barryallen</span>
-                                        </div>
-                                    </div>
-                                    <div class="reviews">
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="far fa-star"></i>
-                                    </div>
-                                </div>
-                                <div class="client-comment">
-                                    <p>AquaClean AI has transformed how we manage marine debris data. The notification system keeps our team aligned and efficient!</p>
-                                </div>
-                            </div>
+                            {% endfor %}
                         </div>
                     </section>
                 </div>
