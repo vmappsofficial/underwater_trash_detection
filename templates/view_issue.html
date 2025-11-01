@@ -1,0 +1,478 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AquaClean AI - View Issues</title>
+    <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64," />
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="https://kit.fontawesome.com/c8e4d183c2.js" crossorigin="anonymous"></script>
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="{% static 'css/dataTables.min.css' %}" />
+    <!-- jQuery -->
+    <script src="{% static 'js/jquery-3.7.1.min.js' %}"></script>
+    <!-- DataTables JS -->
+    <script src="{% static 'js/jquery.dataTables.min.js' %}"></script>
+    <style>
+        :root {
+            --primary-blue: #003366; /* Deep ocean blue */
+            --secondary-blue: #0077b3; /* Brighter blue for accents */
+            --eco-green: #009933; /* Green for environmental theme */
+            --trash-red: #cc0000; /* Red for trash alerts */
+            --bg-gradient: linear-gradient(to bottom, #003366, #00b3e6); /* Underwater gradient */
+            --text-color: #ffffff; /* White text for contrast */
+            --secondary-text: #e6f2ff; /* Light blue text */
+            --star-color: #f9d71c; /* Star color for ratings */
+            --row-hover: rgba(255, 255, 255, 0.15); /* Hover effect for rows */
+            --row-border: rgba(255, 255, 255, 0.2); /* Subtle row border */
+            --card-bg: rgba(255, 255, 255, 0.05); /* Card-like row background */
+            --table-border: rgba(255, 255, 255, 0.3); /* Border for table cells */
+        }
+
+        body {
+            background: var(--bg-gradient);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            color: var(--text-color);
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Navigation Bar */
+        nav {
+            background-color: var(--primary-blue);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            padding: 1rem 0;
+        }
+
+        nav ul {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        nav ul li {
+            margin: 0 1.5rem;
+        }
+
+        nav ul li a {
+            color: var(--text-color);
+            font-weight: 600;
+            font-size: 1rem;
+            text-decoration: none;
+            transition: color 0.3s ease, transform 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+        }
+
+        nav ul li a:hover {
+            color: var(--eco-green);
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: scale(1.05);
+        }
+
+        nav ul li a.active {
+            background-color: var(--secondary-blue);
+            color: var(--text-color);
+        }
+
+        /* Underwater Animations */
+        .bubble {
+            position: absolute;
+            bottom: -50px;
+            width: 20px;
+            height: 20px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            animation: rise 10s infinite ease-in-out;
+            z-index: -1;
+        }
+
+        .bubble:nth-child(2) { left: 20%; width: 30px; height: 30px; animation-duration: 15s; animation-delay: 2s; }
+        .bubble:nth-child(3) { left: 40%; width: 15px; height: 15px; animation-duration: 12s; animation-delay: 4s; }
+        .bubble:nth-child(4) { left: 60%; width: 25px; height: 25px; animation-duration: 18s; animation-delay: 6s; }
+        .bubble:nth-child(5) { left: 80%; width: 18px; height: 18px; animation-duration: 14s; animation-delay: 8s; }
+
+        @keyframes rise {
+            0% { transform: translateY(0) translateX(0); opacity: 0.8; }
+            50% { transform: translateY(-100vh) translateX(10px); opacity: 0.5; }
+            100% { transform: translateY(-200vh) translateX(-10px); opacity: 0; }
+        }
+
+        .wave {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 120px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23003366" fill-opacity="1" d="M0,288L48,272C96,256,192,224,288,197.3C384,171,480,149,576,165.3C672,181,768,235,864,245.3C960,256,1056,224,1152,197.3C1248,171,1344,149,1392,138.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') repeat-x;
+            animation: wave 20s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes wave {
+            0% { background-position: 0 0; }
+            100% { background-position: 1440px 0; }
+        }
+
+        /* Main Content */
+        .layout-container {
+            flex: 1;
+            padding-top: 80px; /* Account for fixed nav */
+            padding-bottom: 2rem;
+        }
+
+        .issue-heading {
+            text-align: center;
+            margin: 3rem 0 2rem;
+        }
+
+        .issue-heading span {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: var(--secondary-text);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .issue-heading h4 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-color);
+            margin: 0;
+        }
+
+        /* Table Container */
+        .dataTable-container {
+            background-color: var(--card-bg);
+            border: 2px solid var(--secondary-blue);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 0 1rem 2rem;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(5px);
+        }
+
+        /* Table Styling */
+        table.dataTable {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 12px;
+            color: var(--text-color);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--table-border); /* Table border */
+        }
+
+        table.dataTable thead {
+            background-color: var(--primary-blue);
+        }
+
+        table.dataTable thead th {
+            padding: 18px 20px;
+            font-weight: 600;
+            color: var(--text-color);
+            border-bottom: 2px solid var(--secondary-blue);
+            border-right: 1px solid var(--table-border); /* Vertical borders */
+            text-align: left;
+            font-size: 1rem;
+        }
+
+        table.dataTable thead th:last-child {
+            border-right: none; /* Remove border from last header */
+        }
+
+        table.dataTable tbody tr {
+            background-color: var(--card-bg);
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 12px;
+            border: 1px solid var(--table-border); /* Row border */
+        }
+
+        table.dataTable tbody tr:hover {
+            background-color: var(--row-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        table.dataTable tbody td {
+            padding: 18px 20px;
+            color: var(--secondary-text);
+            vertical-align: middle;
+            font-size: 0.95rem;
+            border-right: 1px solid var(--table-border); /* Vertical borders */
+            border-bottom: 1px solid var(--row-border);
+        }
+
+        table.dataTable tbody td:last-child {
+            border-right: none; /* Remove border from last cell */
+        }
+
+        .issue-image {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 1px solid var(--secondary-blue);
+            transition: transform 0.3s ease;
+        }
+
+        .issue-image:hover {
+            transform: scale(1.05);
+            opacity: 0.9;
+        }
+
+        .location {
+            color: var(--eco-green);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+        }
+
+        .status {
+            color: var(--trash-red);
+            font-weight: 500;
+            padding: 6px 12px;
+            border-radius: 6px;
+            background-color: rgba(204, 0, 0, 0.1);
+            display: inline-block;
+            text-transform: capitalize;
+            text-align: center;
+            width: 100%; /* Ensure consistent width */
+        }
+
+        .profile-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--secondary-blue);
+        }
+
+        .action-btn {
+            padding: 8px 16px;
+            background-color: var(--secondary-blue);
+            color: var(--text-color);
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+            display: inline-block;
+            text-align: center;
+            min-width: 80px;
+        }
+
+        .action-btn:hover {
+            background-color: var(--eco-green);
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--primary-blue);
+            color: var(--secondary-text);
+            text-align: center;
+            padding: 1.5rem 0;
+            margin-top: auto;
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        footer p {
+            margin: 0;
+            font-size: 0.9rem;
+            font-weight: 400;
+        }
+
+        footer a {
+            color: var(--eco-green);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 790px) {
+            .issue-heading h4 {
+                font-size: 1.8rem;
+            }
+            .dataTable-container {
+                margin: 0 0.5rem 1.5rem;
+                padding: 1.5rem;
+            }
+            table.dataTable thead th,
+            table.dataTable tbody td {
+                padding: 12px 15px;
+                font-size: 0.9rem;
+            }
+            .issue-image {
+                width: 80px;
+                height: 80px;
+            }
+            nav ul li {
+                margin: 0 1rem;
+            }
+            .action-btn {
+                min-width: 70px;
+            }
+        }
+
+        @media (max-width: 340px) {
+            table.dataTable thead th,
+            table.dataTable tbody td {
+                padding: 8px 10px;
+                font-size: 0.8rem;
+            }
+            .issue-image {
+                width: 60px;
+                height: 60px;
+            }
+            nav ul {
+                flex-wrap: wrap;
+            }
+            nav ul li {
+                margin: 0.5rem;
+            }
+            .action-btn {
+                min-width: 60px;
+                padding: 6px 12px;
+            }
+        }
+        .table1{
+        border:1px solid white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav>
+        <ul>
+            <li><a href="/myapp/admin_home">Dashboard</a></li>
+            <li><a href="/myapp/trash_detection">Trash Detection</a></li>
+            <li><a href="/myapp/Review_page">Review</a></li>
+            <li><a href="/myapp/view_issues" class="active">Issues</a></li>
+            <li><a href="/myapp/user_details">User Management</a></li>
+            <li><a href="/myapp/notifications">Notifications</a></li>
+            <li><a href="/myapp/Password_change">Settings</a></li>
+            <li><a href="/myapp/admin_login">Logout</a></li>
+        </ul>
+    </nav>
+
+    <!-- Underwater Animations -->
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="wave"></div>
+
+    <!-- Main Content -->
+    <div class="layout-container">
+        <div class="px-10 flex flex-1 justify-center py-5">
+            <div class="layout-content-container flex flex-col max-w-[960px] w-full">
+                <!-- Issues Section -->
+                <section id="issues">
+                    <div class="issue-heading">
+                        <span>Reported Issues</span>
+                        <h4>Manage User-Reported Issues</h4>
+                    </div>
+
+                    <div class="dataTable-container">
+                           {% if issues_with_place %}
+                        <table class="flex-1" style="color:white;">
+                                <thead>
+                                    <tr class="bg-[#1b2a32]" style="color:white;">
+                                        <th class="table-1db769da-1b86-4d35-985a-a9e09ba39089-column-120 px-4 py-3 text-left text-white text-sm font-medium leading-normal">No</th>
+                                        <th class="table-1db769da-1b86-4d35-985a-a9e09ba39089-column-240 px-4 py-3 text-left text-white w-[400px] text-sm font-medium leading-normal">Name</th>
+                                        <th class="table-1db769da-1b86-4d35-985a-a9e09ba39089-column-360 px-4 py-3 text-left text-white w-[400px] text-sm font-medium leading-normal">Email</th>
+                                        <th class="table-1db769da-1b86-4d35-985a-a9e09ba39089-column-480 px-4 py-3 text-left text-white w-[400px] text-sm font-medium leading-normal">Photo</th>
+                                        <th class="table-1db769da-1b86-4d35-985a-a9e09ba39089-column-720 px-4 py-3 text-left text-white w-[400px] text-sm font-medium leading-normal">Description</th>
+                                        <th class="table-1db769da-1b86-4d35-985a-a9e09ba39089-column-840 px-4 py-3 text-left text-white w-[400px] text-sm font-medium leading-normal">Location</th>
+                                        <th class="table-1db769da-1b86-4d35-985a-a9e09ba39089-column-840 px-4 py-3 text-left text-white w-[400px] text-sm font-medium leading-normal">Status</th>
+                                        <th class="table-1db769da-1b86-4d35-985a-a9e09ba39089-column-840 px-4 py-3 text-left text-white w-[400px] text-sm font-medium leading-normal">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="userTableBody">
+                                  {% for item in issues_with_place %}
+                                    <tr class="border-t border-t-[#0077b3]" style="color:white;">
+                                        <td class="table-1db769da-1b86-4d35-985a-a9e09ba39089-column-240 h-[72px] px-4 py-2 w-[400px] text-white text-sm font-normal leading-normal" style="color:white;">{{ forloop.counter }}</td>
+                                        <td class="table-1db769da-1b86-4d35-985a-a9e09ba39089-column-360 h-[72px] px-4 py-2 w-[400px] text-[#90b3cb] text-sm font-normal leading-normal" style="color:white;">{{ item.issue.Registration.name }}</td>
+                                        <td class="table-1db769da-1b86-4d35-985a-a9e09ba39089-column-360 h-[72px] px-4 py-2 w-[400px] text-[#90b3cb] text-sm font-normal leading-normal" style="color:white;">{{ item.issue.Registration.email}}</td>
+                                        <td class="table-1db769da-1b86-4d35-985a-a9e09ba39089-column-120 h-[72px] px-4 py-2 text-sm font-normal leading-normal"><div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full w-10" style="background-image: url({{ item.issue.photo}});"></div></td>
+                                         <td class="table-1db769da-1b86-4d35-985a-a9e09ba39089-column-360 h-[72px] px-4 py-2 w-[400px] text-[#90b3cb] text-sm font-normal leading-normal">{{ item.issue.description}}</td>
+<td class="table-1db769da-1b86-4d35-985a-a9e09ba39089-column-360 h-[72px] px-4 py-2 w-[400px] text-[#90b3cb] text-sm font-normal leading-normal">{{  item.place_name}}</td>
+                                        <td class="table-1db769da-1b86-4d35-985a-a9e09ba39089-column-360 h-[72px] px-4 py-2 w-[400px] text-[#90b3cb] text-sm font-normal leading-normal">{{  item.issue.action}}</td>
+                                       <td>
+  {% if item.issue.action == 'pending' %}
+    <a href="/myapp/adminSend_reply/{{ item.issue.id }}" class="action-btn">Reply</a>
+  {% endif %}
+</td>
+
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+{% endif %}
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 AquaClean AI. All rights reserved. | <a href="/myapp/contact">Contact Us</a> | <a href="/myapp/privacy">Privacy Policy</a></p>
+    </footer>
+
+    <script>
+        $(document).ready(function() {
+            $('#issuesTable').DataTable({
+                "paging": true,
+                "searching": true,
+                "ordering": true,
+                "info": true,
+                "responsive": true,
+                "pageLength": 10,
+                "order": [[7, 'desc']], // Sort by Date (newest first)
+                "columnDefs": [
+                    { "orderable": false, "targets": [0, 3, 8] }, // Disable sorting on No, Photo, Action
+                    { "width": "8%", "targets": [0] }, // No
+                    { "width": "12%", "targets": [1, 6, 7, 8] }, // User, Status, Date, Action
+                    { "width": "15%", "targets": [2, 3] }, // Email, Photo
+                    { "width": "20%", "targets": [4, 5] } // Description, Location
+                ],
+                "language": {
+                    "emptyTable": "No issues available",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ issues",
+                    "search": "Search issues:",
+                    "paginate": {
+                        "first": "First",
+                        "last": "Last",
+                        "next": "Next",
+                        "previous": "Previous"
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

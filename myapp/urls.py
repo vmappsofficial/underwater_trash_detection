@@ -30,6 +30,12 @@ urlpatterns = [
     path('send_review/',views.send_review),
     path('admin_view_review/',views.admin_view_review),
     path('user_view_review/',views.user_view_review),
+    path('user_view_notifications/',views.user_view_Notification),
+    path('report_issue/',views.report_issue),
+    path('view_issue/',views.view_issues),
+    path('adminSend_reply/<id>', views.adminSend_reply),
+    path('admin_sendAction/',views.admin_sendAction),
+    path('user_view_issue/',views.user_view_issue),
 
 
 

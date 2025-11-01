@@ -430,35 +430,82 @@ def view_review(request):
             'status': 'ok',
         }
     )
+
 def report_issue(request):
     latitude = request.POST['latitude']
     longitude = request.POST['longitude']
+    photo = request.FILES['photo']
     lid=request.POST['lid']
     description=request.POST['description']
-    action=request.POST['action']
+    fs = FileSystemStorage()
+    date = datetime.datetime.now().strftime('%d%M%Y-%H%M%S') + '.jpg'
+    fs.save(date, photo)
+    path=fs.url(date)
     R = Issue_report()
     R.latitude=latitude
     R.longitude=longitude
     R.description=description
-    R.date=datetime.datetime.now()
+    R.photo=path
+    R.date=datetime.datetime.now().today()
     R.Registration= Registration.objects.get(USER_id=lid)
-    R.action=action
+    R.action='pending'
     R.save()
     return JsonResponse(
         {
             'status': 'ok',
         }
     )
-def view_issue(request):
-    lid= request.POST['lid']
-    d = Issue_report.objects.filter(USER_id=lid)
-    return JsonResponse(
-        {
-            'status': 'ok',
-        }
-    )
+def view_user_issue(request):
+    id=request.POST['lid']
+    a=Issue_report.objects.filter(Registration_USER_id=id)
+    l=[]
+    for i in a:
+        l.append({
+            'photo': i.photo,
+            'latitude': i.latitude,
+            'longitude': i.longitude,
+            'description': i.description,
+            'date': i.date,
+            'action': i.action,
+        })
+    return JsonResponse({'status': 'ok','data': l})
+
+from django.shortcuts import render
+
+from django.shortcuts import render
+from .models import Issue_report
+from geopy.geocoders import Nominatim
+from geopy.exc import GeocoderTimedOut, GeocoderUnavailable
+import logging
+
+# Set up logging for geocoding errors
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
+def view_issues(request):
+    issues = Issue_report.objects.all().order_by('-date')
+    geolocator = Nominatim(user_agent="aquaclean_ai")  # Initialize geocoder
+    issues_with_place = []
+
+    for issue in issues:
+        try:
+            # Convert latitude and longitude to float
+            lat = float(issue.latitude)
+            lon = float(issue.longitude)
+            # Perform reverse geocoding
+            location = geolocator.reverse((lat, lon), language='en')
+            place_name = location.address if location else "Unknown location"
+        except (ValueError, GeocoderTimedOut, GeocoderUnavailable) as e:
+            logger.error(f"Geocoding failed for lat: {issue.latitude}, lon: {issue.longitude} - Error: {str(e)}")
+            place_name = "Unknown location"
+
+        issues_with_place.append({
+            'issue': issue,
+            'place_name': place_name
+        })
+
+    return render(request, 'view_issue.html', {'issues_with_place': issues_with_place})
 def view_detection(request):
     id= request.POST['id']
     print(id,"===========================")
@@ -703,3 +750,47 @@ def forgot_password_post(request):
     else:
         messages.error(request, 'Invalid request method')
         return redirect('/myapp/forgot_password/')
+
+def user_view_Notification(request):
+    a=Notification.objects.all()
+    l=[]
+    for i in a:
+        l.append({
+            'date':i.date,
+            'notification':i.notification,
+        })
+    return JsonResponse({
+        'status': 'ok',
+        'data':l,
+    })
+
+
+def adminSend_reply(request,id):
+    a=Issue_report.objects.get(id=id)
+    return render(request, 'sendAction.html',{'data':a})
+def admin_sendAction(request):
+    id=request.POST['id']
+    action=request.POST['action']
+    obj=Issue_report.objects.get(id=id)
+    obj.status='replaid'
+    obj.action=action
+    obj.save()
+    return redirect('/myapp/view_issue/')
+
+
+def user_view_issue(request):
+    lid=request.POST['lid']
+    print(lid)
+    a=Issue_report.objects.filter(Registration__USER_id=lid)
+    l=[]
+    for i in a:
+        l.append({
+            'date':i.date,
+            'photo':i.photo,
+            'description':i.description,
+            'action':i.action,
+        })
+    return JsonResponse({
+        'status': 'ok',
+        'data':l,
+    })
